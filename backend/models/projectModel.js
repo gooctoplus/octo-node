@@ -14,7 +14,8 @@ const projectSchema = new mongoose.Schema({
     url: { type: String, required: true },
     pineconeIndex: {
         type: String, required: true,
-    },    
+    },
+    repoTargetPath: { type: String, required: true },
   }],
 });
 

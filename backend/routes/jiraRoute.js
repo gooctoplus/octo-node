@@ -18,6 +18,7 @@ router.post('/:orgId/webhook', async (req, res) => {
       const currentProject = projects.find(project => issue.self.includes(project.url));
       
       const repoUrl = currentProject.repos[0].url
+      const repoTargetPath = currentProject.repos[0].repoTargetPath
       const pineconeIndex = currentProject.repos[0].pineconeIndex
 
       // fetch project using currentProject
@@ -34,7 +35,7 @@ router.post('/:orgId/webhook', async (req, res) => {
           // Log the assigned ticket
           console.log(`Assigned ticket: ${ticketId}`);
     
-          const pythonProcess = spawn('/app/octoplus/bin/python', ['/app/octoplus/octo/main.py', `--ticket=${ticketDescription}`, `--ticket-id=${ticketId}`, `--pineconeAPIKey=${pineconeAPIKey}`, `--openAIKey=${openAIKey}`, `--pineconeIndex=${pineconeIndex}`, `--repoUrl=${repoUrl}`], {
+          const pythonProcess = spawn('/app/octoplus/bin/python', ['/app/octoplus/octo/main.py', `--ticket=${ticketDescription}`, `--ticket-id=${ticketId}`, `--pineconeAPIKey=${pineconeAPIKey}`, `--openAIKey=${openAIKey}`, `--pineconeIndex=${pineconeIndex}`, `--repoUrl=${repoUrl}`, `--repoTargetPath=${repoTargetPath}`], {
               cwd: '/app/octoplus/octo/'
           });
           pythonProcess.stdout.on('data', (data) => {
