@@ -12,14 +12,12 @@ router.post('/:orgId/webhook', async (req, res) => {
 
   const org = await Org.findOne({orgId});
 	if(org) {
-		console.log(org);
 		const {pineconeAPIKey, openAIKey } = org
 		const projects = await Project.find({orgId});
 		const currentProject = projects.find(project => issue.self.includes(project.url));
 		
 		const repoUrl = currentProject.repos[0].url
 		const pineconeIndex = currentProject.repos[0].pineconeIndex
-		console.log(currentProject)
 
 		// fetch project using currentProject
 		if (req.body.webhookEvent === 'comment_created' && req.body.comment.author.displayName === "Octo") {
@@ -36,8 +34,8 @@ router.post('/:orgId/webhook', async (req, res) => {
 				// Log the assigned ticket
 				console.log(`Assigned ticket: ${ticketId}`);
 	
-				const pythonProcess = spawn('/Users/abhishek/code/octo/octo-env/bin/python', ['/Users/abhishek/code/octo/octo/main.py', `--ticket=${ticketDescription}`, `--ticket-id=${ticketId}`, `--pineconeAPIKey=${pineconeAPIKey}`, `--openAIKey=${openAIKey}`, `--pineconeIndex=${pineconeIndex}`, `--repoUrl=${repoUrl}`], {
-						cwd: '/Users/abhishek/code/octo/octo/'
+				const pythonProcess = spawn('/app/octoplus/bin/python', ['/app/octoplus/octo/main.py', `--ticket=${ticketDescription}`, `--ticket-id=${ticketId}`, `--pineconeAPIKey=${pineconeAPIKey}`, `--openAIKey=${openAIKey}`, `--pineconeIndex=${pineconeIndex}`, `--repoUrl=${repoUrl}`], {
+						cwd: '/app/octoplus/octo/'
 				});
 				pythonProcess.stdout.on('data', (data) => {
 						console.log(`stdout: ${data}`);
