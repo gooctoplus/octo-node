@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const JIRA_BASE_URL = process.env.JIRA_BASE_URL;
-const JIRA_AUTH = process.env.JIRA_AUTH;
+const JIRA_AUTH = `Basic ${Buffer.from(`${process.env.BOT_USERNAME}:${process.env.API_TOKEN}`).toString('base64')}`;
 
 export async function commentOnTicket(ticketId, comment, status, prUrl) {
     const url = `${JIRA_BASE_URL}/rest/api/3/issue/${ticketId}/comment`;
@@ -92,7 +92,6 @@ export async function commentOnTicket(ticketId, comment, status, prUrl) {
                 }
             });
             console.log('Jira ticket status changed to In Progress');
-    
         }
     } catch (error) {
         console.error('Error posting comment:', error.response ? error.response.data : error.message);

@@ -16,6 +16,7 @@ const projectSchema = new mongoose.Schema({
         type: String, required: true,
     },
     repoTargetPath: { type: String, required: true },
+    defaultBranch: {type: String, required: true}
   }],
 });
 
