@@ -55,7 +55,7 @@ router.put('/:id', isAuth, async (req, res) => {
   }
 });
 
-router.post('/add', validateToken, async (req, res) => {
+router.post('/add', async (req, res) => {
   const { name, email, orgId, pineconeAPIKey, maxTickets, openAIKey } = req.body;
 
   const newOrg = new Org({
