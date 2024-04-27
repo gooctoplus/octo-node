@@ -1,4 +1,5 @@
 import express from 'express';
+import jwt from 'jsonwebtoken'; // Import jsonwebtoken for token generation
 import Org from '../models/orgModel';
 import { getToken, isAuth } from '../util';
 
@@ -25,7 +26,7 @@ router.put('/:id', isAuth, async (req, res) => {
 });
 
 router.post('/add', async (req, res) => {
-  const { name, email, orgId, pineconeAPIKey, maxTickets, openAIKey, projects } = req.body;
+  const { name, email, orgId, pineconeAPIKey, maxTickets, openAIKey } = req.body;
 
   const newOrg = new Org({
     name,
@@ -36,17 +37,27 @@ router.post('/add', async (req, res) => {
     openAIKey,
   });
 
-  const createdOrg = await newOrg.save();
-  res.status(201).send({
-    _id: createdOrg.id,
-    name: createdOrg.name,
-    email: createdOrg.email,
-    orgId: createdOrg.orgId,
-    pineconeAPIKey: createdOrg.pineconeAPIKey,
-    maxTickets: createdOrg.maxTickets,
-    openAIKey: createdOrg.openAIKey,
-  });
-});
+  try {
+    // Generate an authentication token for the new organization before saving
+    const token = jwt.sign({ _id: newOrg._id.toString() }, process.env.JWT_SECRET, { expiresIn: '24h' });
+    newOrg.authToken = token; // Saving token in the newOrg instance
 
+    const createdOrg = await newOrg.save();
+    console.log(`New organization added with ID: ${createdOrg._id} and authToken generated.`);
+    res.status(201).send({
+      _id: createdOrg._id,
+      name: createdOrg.name,
+      email: createdOrg.email,
+      orgId: createdOrg.orgId,
+      pineconeAPIKey: createdOrg.pineconeAPIKey,
+      maxTickets: createdOrg.maxTickets,
+      openAIKey: createdOrg.openAIKey,
+      authToken: createdOrg.authToken, // Include authToken in the response
+    });
+  } catch (error) {
+    console.error(`Error creating organization: ${error.message}`, error);
+    res.status(500).send({ message: 'Error creating organization', error: error.message });
+  }
+});
 
 export default router;

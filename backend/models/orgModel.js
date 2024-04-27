@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 
 const orgSchema = new mongoose.Schema({
+  // ...existing fields...,
   name: { type: String, required: true },
   email: {
     type: String, required: true, unique: true,
@@ -16,7 +17,8 @@ const orgSchema = new mongoose.Schema({
   },
   openAIKey: {
     type: String, required: true,
-  }
+  },
+  authToken: { type: String, required: false }
 });
 
 const orgModel = mongoose.model('Org', orgSchema);
