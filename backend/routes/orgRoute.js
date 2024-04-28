@@ -56,7 +56,7 @@ router.put('/:id', isAuth, async (req, res) => {
 });
 
 router.post('/add', async (req, res) => {
-  const { name, email, orgId, pineconeAPIKey, maxTickets, openAIKey } = req.body;
+  const { name, email, password, orgId, pineconeAPIKey, maxTickets, openAIKey } = req.body;
 
   const newOrg = new Org({
     name,
@@ -65,8 +65,9 @@ router.post('/add', async (req, res) => {
     pineconeAPIKey,
     maxTickets,
     openAIKey,
+    password
   });
-
+  
   try {
     // Generate an authentication token for the new organization before saving
     const token = jwt.sign({ _id: newOrg._id.toString() }, process.env.JWT_SECRET, { expiresIn: '24h' });
