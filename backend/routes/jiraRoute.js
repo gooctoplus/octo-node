@@ -9,7 +9,6 @@ router.post('/:orgId/webhook', async (req, res) => {
   try {
     const { issue } = req.body;
     const { orgId } = req.params;
-    console.log(issue)
 
     const org = await Org.findOne({orgId});
     if(org) {
@@ -21,9 +20,7 @@ router.post('/:orgId/webhook', async (req, res) => {
       const repoTargetPath = currentProject.repos[0].repoTargetPath
       const pineconeIndex = currentProject.repos[0].pineconeIndex
 
-      // fetch project using currentProject
       if (req.body.webhookEvent === 'comment_created' && req.body.comment.author.displayName === "Octo") {
-          console.log('Update made by the bot or author is Octo, ignoring to prevent loop.');
           return res.status(200).send('Ignored sdbot update');
       }
     
@@ -32,18 +29,15 @@ router.post('/:orgId/webhook', async (req, res) => {
           const ticketId = issue.key;
           const ticketDescription = issue.fields.description
           
-          // Log the assigned ticket
-          console.log(`Assigned ticket: ${ticketId}`);
-    
           const pythonProcess = spawn('/app/octoplus/bin/python', ['/app/octoplus/octo/main.py', `--ticket=${ticketDescription}`, `--ticket-id=${ticketId}`, `--pineconeAPIKey=${pineconeAPIKey}`, `--openAIKey=${openAIKey}`, `--pineconeIndex=${pineconeIndex}`, `--repoUrl=${repoUrl}`, `--repoTargetPath=${repoTargetPath}`], {
               cwd: '/app/octoplus/octo/'
           });
           pythonProcess.stdout.on('data', (data) => {
-              console.log(`stdout: ${data}`);
+              console.log(`stdout: ${data.toString()}`);
           });
     
           pythonProcess.stderr.on('data', (data) => {
-              console.error(`stderr: ${data}`);
+              console.error(`stderr: ${data.toString()}`);
           });
     
           pythonProcess.on('close', (code) => {
@@ -51,21 +45,26 @@ router.post('/:orgId/webhook', async (req, res) => {
               res.send('Python script executed');
           });
     
-      } 
+      } else {
+          res.status(200).send('Webhook received');
+      }
     } else {
       console.log('org not found')
       res.status(404).send('Org not found');
     }
-    res.status(200).send('Webhook received');
   } catch (error) {
-    console.error(error);
+    console.error(`Error processing Jira webhook: ${error}`);
     res.status(500).send('Internal Server Error');
   }
 });
 
 router.post('/comment', (req, res) => {
   const { comment, ticketId, status, prUrl } = req.body;
-  commentOnTicket(ticketId, comment, status, prUrl)
-  res.send('Comment received successfully');
+  commentOnTicket(ticketId, comment, status, prUrl).then(() => {
+      res.send('Comment received successfully');
+  }).catch(error => {
+      console.error(`Error posting comment: ${error}`);
+      res.status(500).send('Internal Server Error');
+  });
 });
 export default router;
