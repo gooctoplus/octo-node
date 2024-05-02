@@ -1,26 +1,31 @@
 import express from 'express';
 import Project from '../models/projectModel';
+import { spawn } from 'child_process';
 import { getToken, isAuth } from '../util';
 import Org from '../models/orgModel';
 
 const router = express.Router();
-async function handleCommitCommentWebhook(payload) {
+async function handleCommitCommentWebhook(payload,res) {
     
     let repoName = payload?.repository?.name
-    const projects = await Project.find({ 'repos.name': repoName });
-    if(true) { 
+    const projects = await Project.findOne({ 'repos.key': repoName });
+    if(projects) { 
       const {orgId} = projects
-
       const org = await Org.findOne({orgId});
       const {pineconeAPIKey, openAIKey } = org
-    //   const projects = await Project.find({orgId});
-    //   const org = await Org.findOne({orgId});
-      const currentProject = projects.find(project => issue.self.includes(project.url));
+    // //   const projects = await Project.find({orgId});
+    // //   const org = await Org.findOne({orgId});
+    //   const currentProject = projects.find(project => issue.self.includes(project.url));
+      const currentRepo = projects.repos.find(repo => repo.key === repoName);
+      if (!currentRepo) {
+        console.log(`Repository with name ${repoName} not found in projects`);
+        return res.status(404).send('Repository not found');
+      }
       
-      const repoUrl = currentProject.repos[0].url
-      const repoTargetPath = currentProject.repos[0].repoTargetPath
-      const pineconeIndex = currentProject.repos[0].pineconeIndex
-
+      const repoUrl = currentRepo.url
+      const repoTargetPath = currentRepo.repoTargetPath
+      const pineconeIndex = currentRepo.pineconeIndex
+      console.log('repoo urllljjl',repoUrl);
     const {body, path, diff_hunk} = payload?.comment;
     const {name} = payload?.repository;
     const {ref} = payload?.pull_request?.head;
@@ -28,15 +33,15 @@ async function handleCommitCommentWebhook(payload) {
     const pattern = /@useocto/i;
     
     if (pattern.test(body)) {
-        responseBody = {
+        let responseBody = {
             commentText: body,
             filePath: path,
             repoName: name,
             diff_hunk: diff_hunk,
             working_branch: ref,
         }
-        console.log(`Commit comment contains your mention: ${responseBody}`);
-        const pythonProcess = spawn('/Users/priyal/projects/octoplus/bin/python', ['/Users/priyal/projects/octoplus/octo/main.py',`--working_branch=${working_branch}`, `--diff_hunk=${diff_hunk}`, `--is-git-flow=True`, `--comment-text=${body}`,  `--comment-file=${path}`,`--pineconeAPIKey=${pineconeAPIKey}`, `--openAIKey=${openAIKey}`, `--pineconeIndex=${pineconeIndex}`, `--repoUrl=${repoUrl}`, `--repoTargetPath=${repoTargetPath}`], {
+        console.log(`Commit comment contains your mention: ${JSON.stringify(responseBody)}`);
+        const pythonProcess = spawn('/Users/priyal/projects/octoplus/env/bin/python', ['/Users/priyal/projects/octoplus/octo/main.py',`--working_branch=${ref}`, `--diff_hunk=${diff_hunk}`, `--is-git-flow=True`, `--comment-text=${body}`,  `--comment-file=${path}`,`--pineconeAPIKey=${pineconeAPIKey}`, `--openAIKey=${openAIKey}`, `--pineconeIndex=${pineconeIndex}`, `--repoUrl=${repoUrl}`, `--repoTargetPath=${repoTargetPath}`], {
             cwd: '/Users/priyal/projects/octoplus/octo/'
         });
         pythonProcess.stdout.on('data', (data) => {
@@ -64,7 +69,7 @@ router.post('/webhook', async (req, res) => {
         const payload = req.body;
         console.log("inside my route")
         //   console.log(payload)
-        handleCommitCommentWebhook(payload)
+        handleCommitCommentWebhook(payload,res)
         res.status(200).send('Webhook received');
     }
     catch (error) {
