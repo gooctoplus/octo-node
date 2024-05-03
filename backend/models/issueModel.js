@@ -14,10 +14,23 @@ const issueSchema = new mongoose.Schema({
   summary: { type: String, required: true },
   reporter: { type: String },
   description: { type: String },
-  createdAt: { type: String, required: true },
-  lastUpdatedAt: { type: String, required: true },
+  // Removed the 'required: true' condition from both fields
+}, {
+  timestamps: { createdAt: 'createdAt', updatedAt: 'lastUpdatedAt' } // Automatically generates and updates timestamps
 });
 
 const issueModel = mongoose.model("Issue", issueSchema);
+
+issueModel.on('index', error => {
+  if (error) {
+    console.error("Indexing error in issueModel schema:", error.message); // Log indexing errors
+  } else {
+    console.log("Indexing successful for issueModel schema");
+  }
+});
+
+issueModel.createIndexes().catch(error => {
+  console.error("Error creating indexes for issueModel:", error); // Log errors related to index creation
+});
 
 export default issueModel;
