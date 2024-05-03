@@ -1,16 +1,17 @@
 import express from 'express';
 import Project from '../models/projectModel';
-import { getToken, isAuth } from '../util';
 
 const router = express.Router();
 router.post('/add', async (req, res) => {
-  const { name, url, orgId, repos } = req.body;
+  const { name, url, orgId, repos, jiraToken, jiraEmail} = req.body;
 
   const newProject = new Project({
     name,
     url,
     orgId,
     repos,
+    jiraToken,
+    jiraEmail,
   });
 
   const createdProject = await newProject.save();
@@ -20,6 +21,8 @@ router.post('/add', async (req, res) => {
     url: createdProject.url,
     orgId: createdProject.orgId,
     repos: createdProject.repos,
+    jiraToken: createdProject.jiraToken,
+    jiraEmail: createdProject.jiraEmail,
   });
 });
 

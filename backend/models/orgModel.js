@@ -21,7 +21,7 @@ const orgSchema = new mongoose.Schema({
   openAIKey: {
     type: String, required: true,
   },
-  authToken: { type: String, required: false }
+  webhookToken: { type: String, required: true }
 });
 
 const orgModel = mongoose.model('Org', orgSchema);

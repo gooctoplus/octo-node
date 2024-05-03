@@ -18,10 +18,13 @@ router.post('/:orgId/webhook', async (req, res) => {
       const currentProject = projects.find(project => issue.self.includes(project.url));
       
       const repoUrl = currentProject.repos[0].url
-      const repoTargetPath = currentProject.repos[0].repoTargetPath
-      const pineconeIndex = currentProject.repos[0].pineconeIndex
+      const repoTargetPath = currentProject.repos[0].repoTargetPath;
+      const pineconeIndex = currentProject.repos[0].pineconeIndex;
+      const defaultBranch = currentProject.repos[0].defaultBranch;
+      const languages = currentProject.repos[0].languages;
+      const suffixes = currentProject.repos[0].suffixes;
+      const projectUrl = currentProject.url
 
-      // fetch project using currentProject
       if (req.body.webhookEvent === 'comment_created' && req.body.comment.author.displayName === "Octo") {
           console.log('Update made by the bot or author is Octo, ignoring to prevent loop.');
           return res.status(200).send('Ignored sdbot update');
@@ -35,8 +38,21 @@ router.post('/:orgId/webhook', async (req, res) => {
           // Log the assigned ticket
           console.log(`Assigned ticket: ${ticketId}`);
     
-          const pythonProcess = spawn('/app/octoplus/bin/python', ['/app/octoplus/octo/main.py', `--ticket=${ticketDescription}`, `--ticket-id=${ticketId}`, `--pineconeAPIKey=${pineconeAPIKey}`, `--openAIKey=${openAIKey}`, `--pineconeIndex=${pineconeIndex}`, `--repoUrl=${repoUrl}`, `--repoTargetPath=${repoTargetPath}`], {
-              cwd: '/app/octoplus/octo/'
+          const pythonProcess = spawn('/app/octoplus/bin/python', [
+            '/app/octoplus/octo/main.py', 
+            `--ticket=${ticketDescription}`, 
+            `--ticket-id=${ticketId}`, 
+            `--pineconeAPIKey=${pineconeAPIKey}`, 
+            `--openAIKey=${openAIKey}`, 
+            `--pineconeIndex=${pineconeIndex}`, 
+            `--repoUrl=${repoUrl}`, 
+            `--repoTargetPath=${repoTargetPath}`,
+            `--defaultBranch=${defaultBranch}`,
+            `--languages=${languages.join(',')}`,
+            `--suffixes=${suffixes.join(',')}`,
+            `--projectUrl=${projectUrl}`,
+          ], {
+            cwd: '/app/octoplus/octo/'
           });
           pythonProcess.stdout.on('data', (data) => {
               console.log(`stdout: ${data}`);
@@ -63,9 +79,11 @@ router.post('/:orgId/webhook', async (req, res) => {
   }
 });
 
-router.post('/comment', (req, res) => {
-  const { comment, ticketId, status, prUrl } = req.body;
-  commentOnTicket(ticketId, comment, status, prUrl)
+router.post('/comment', async (req, res)  =>  {
+  const { comment, ticketId, status, prUrl, projectUrl } = req.body;
+  const project = await Project.findOne({url: projectUrl});
+
+  commentOnTicket(project.url, project.jiraToken, project.jiraEmail, ticketId, comment, status, prUrl)
   res.send('Comment received successfully');
 });
 export default router;
