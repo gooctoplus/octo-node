@@ -24,46 +24,6 @@ router.post("/:orgId/webhook", async (req, res) => {
       const repoTargetPath = currentProject?.repos?.[0].repoTargetPath;
       const pineconeIndex = currentProject?.repos?.[0].pineconeIndex;
 
-      // Issue creation
-      const {
-        project,
-        issuetype,
-        priority,
-        status,
-        summary,
-        created,
-        updated,
-        reporter,
-        id
-      } = issue.fields;
-      
-      const issueData = {
-        orgId: orgId,
-        project: {
-          name: project.name,
-          projectId: project.id,
-          key: project.key,
-        },
-        issueType: issuetype.name,
-        priority: priority.name,
-        status: status.name,
-        summary: summary,
-        reporter: reporter.displayName,
-        createdAt: created,
-        lastUpdatedAt: updated,
-      };
-      
-      try {
-        const updatedIssue = await Issue.findOneAndUpdate(
-          { issueId: issue.id }, // query
-          issueData, // update
-          { new: true, upsert: true } // options
-        );
-        console.log("Issue updated or created in database", updatedIssue);
-      } catch (error) {
-        console.log("Error in updating or creating issue", error);
-      }
-
       // fetch project using currentProject
       if (
         req.body.webhookEvent === "comment_created" &&
@@ -80,6 +40,47 @@ router.post("/:orgId/webhook", async (req, res) => {
         req.body.issue_event_type_name === "issue_assigned" &&
         req.body.issue.fields.assignee.displayName === "Octo"
       ) {
+        // Issue creation
+        const {
+          project,
+          issuetype,
+          priority,
+          status,
+          summary,
+          created,
+          updated,
+          reporter,
+          description,
+        } = issue.fields;
+
+        const issueData = {
+          orgId: orgId,
+          project: {
+            name: project.name,
+            projectId: project.id,
+            key: project.key,
+          },
+          issueType: issuetype.name,
+          priority: priority.name,
+          status: status.name,
+          summary: summary,
+          reporter: reporter.displayName,
+          description: description,
+          createdAt: created,
+          lastUpdatedAt: updated,
+        };
+
+        try {
+          const updatedIssue = await Issue.findOneAndUpdate(
+            { issueId: issue.id }, // query
+            issueData, // update
+            { new: true, upsert: true } // options
+          );
+          console.log("Issue updated or created in database", updatedIssue);
+        } catch (error) {
+          console.log("Error in updating or creating issue", error);
+        }
+
         const ticketId = issue.key;
         const ticketDescription = issue.fields.description;
 
