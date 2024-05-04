@@ -28,7 +28,7 @@ const isAuth = (req, res, next) => {
       if (err) {
         return res.status(401).send({ message: 'Invalid Token' });
       }
-      req.org = decode;
+      req.decoded = decode;
       next();
       return;
     });

@@ -10,14 +10,23 @@ router.post("/login", async (req, res) => {
 
     try {
         const org = await Org.findOne({ email });
-        if (org && bcrypt.compare(password, org.password)) {
-            const token = getToken(org);
-            res.status(200).send({ token });
+        if (org) {
+            bcrypt.compare(password, org.password, (err, result) => {
+                if (err) {
+                    return res.status(500).send({ message: "Error in password comparison", error: err.message });
+                }
+                if (result) {
+                    const token = getToken(org);
+                    res.status(200).send({ token });
+                } else {
+                    res.status(401).send({ message: "Invalid credentials" });
+                }
+            });
         } else {
-            res.status(401).send({ message: "Invalid credentials" })
+            res.status(401).send({ message: "Invalid credentials" });
         }
     } catch (error) {
-        res.status(500).send({ message: "Internal Server Error", error: error.message })
+        res.status(500).send({ message: "Internal Server Error", error: error.message });
     }
 });
 

@@ -7,7 +7,7 @@ router.use(isAuth);
 
 // fetch all issues from database
 router.get("/", async (req, res) => {
-  const { orgId } = req.org;
+  const { orgId } = req.decoded;
   try {
     const issues = await Issue.find({ orgId });
     console.log("fetched all issues", issues);
@@ -22,7 +22,7 @@ router.get("/", async (req, res) => {
 
 // fetch issue by issue id from database
 router.get("/:issueId", async (req, res) => {
-  const { orgId } = req.org;
+  const { orgId } = req.decoded;
   const { issueId } = req.params;
   try {
     const issue = await Issue.findOne({ orgId, issueId });
