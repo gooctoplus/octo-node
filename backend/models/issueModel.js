@@ -8,7 +8,7 @@ const issueSchema = new mongoose.Schema({
     projectId: { type: String, required: true },
     key: { type: String, required: true },
   },
-  issueType: { type: String, required: true },
+  issueType: { type: String, required: false }, // Changed required to false
   priority: { type: String, required: true },
   status: { type: String, required: true },
   summary: { type: String, required: true },
