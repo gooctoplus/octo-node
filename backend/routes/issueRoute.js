@@ -3,7 +3,7 @@ import Issue from "../models/issueModel";
 
 const router = express.Router();
 
-// Updated fetch all issues endpoint with pagination and validation
+// Updated fetch all issues endpoint with pagination, validation, and metadata
 router.get("/", async (req, res) => {
   let { limit, offset } = req.query;
 
@@ -18,12 +18,25 @@ router.get("/", async (req, res) => {
   }
 
   try {
-    // Fetch issues with limit and offset for pagination
+    const totalIssues = await Issue.countDocuments();
     const issues = await Issue.find({}).limit(limit).skip(offset);
     console.log("Fetched issues with pagination", issues);
 
-    // Sending paginated issues
-    res.status(200).send(issues);
+    const totalPages = Math.ceil(totalIssues / limit);
+    const currentPage = Math.floor(offset / limit) + 1;
+
+    // Sending paginated issues with metadata
+    res.status(200).send({
+      issues,
+      pagination: {
+        totalIssues,
+        returnedIssues: issues.length,
+        currentPage,
+        totalPages,
+        limit,
+        offset,
+      },
+    });
   } catch (error) {
     console.error("Error in fetching issues with pagination", error);
     res.status(500).send({ message: "Internal Server Error", error: error.message });
