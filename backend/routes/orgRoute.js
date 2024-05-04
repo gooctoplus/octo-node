@@ -70,11 +70,11 @@ router.post('/add', async (req, res) => {
   
   try {
     // Generate an authentication token for the new organization before saving
-    const token = jwt.sign({ _id: newOrg._id.toString() }, process.env.JWT_SECRET, { expiresIn: '24h' });
-    newOrg.authToken = token; // Saving token in the newOrg instance
+    const webhookToken = jwt.sign({ _id: newOrg._id.toString() }, process.env.JWT_SECRET, { expiresIn: '24000h' });
+    newOrg.webhookToken = webhookToken; // Saving token in the newOrg instance
 
     const createdOrg = await newOrg.save();
-    console.log(`New organization added with ID: ${createdOrg._id} and authToken generated.`);
+    console.log(`New organization added with ID: ${createdOrg._id} and webhookToken generated.`);
     res.status(201).send({
       _id: createdOrg._id,
       name: createdOrg.name,
@@ -83,7 +83,7 @@ router.post('/add', async (req, res) => {
       pineconeAPIKey: createdOrg.pineconeAPIKey,
       maxTickets: createdOrg.maxTickets,
       openAIKey: createdOrg.openAIKey,
-      authToken: createdOrg.authToken, // Include authToken in the response
+      webhookToken: createdOrg.webhookToken,
     });
   } catch (error) {
     console.error(`Error creating organization: ${error.message}`, error);
