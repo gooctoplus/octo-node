@@ -3,13 +3,21 @@ import Issue from "../models/issueModel";
 
 const router = express.Router();
 
-// Updated fetch all issues endpoint with pagination
+// Updated fetch all issues endpoint with pagination and validation
 router.get("/", async (req, res) => {
-  try {
-    // Default values for pagination
-    const limit = parseInt(req.query.limit, 10) || 10; // Default limit to 10 documents
-    const offset = parseInt(req.query.offset, 10) || 0; // Default offset to 0
+  let { limit, offset } = req.query;
 
+  // Set default values if not provided and validation
+  limit = limit ? parseInt(limit, 10) : 10;
+  offset = offset ? parseInt(offset, 10) : 0;
+
+  // Validate 'limit' and 'offset' to be integers
+  if (isNaN(limit) || isNaN(offset)) {
+    console.log("Invalid query parameters: Limit and offset must be valid integers");
+    return res.status(400).send({ message: "Limit and offset must be valid integers" });
+  }
+
+  try {
     // Fetch issues with limit and offset for pagination
     const issues = await Issue.find({}).limit(limit).skip(offset);
     console.log("Fetched issues with pagination", issues);
@@ -17,7 +25,7 @@ router.get("/", async (req, res) => {
     // Sending paginated issues
     res.status(200).send(issues);
   } catch (error) {
-    console.log("Error in fetching issues with pagination", error);
+    console.error("Error in fetching issues with pagination", error);
     res.status(500).send({ message: "Internal Server Error", error: error.message });
   }
 });
@@ -28,9 +36,14 @@ router.get("/:issueId", async (req, res) => {
     const { issueId } = req.params;
     const issue = await Issue.findOne({ issueId });
     console.log("Fetched Issue", issue);
-    res.status(201).send(issue);
+    if (issue) {
+      res.status(200).send(issue);
+    } else {
+      console.log(`Issue with ID ${issueId} not found`);
+      res.status(404).send({ message: `Issue with ID ${issueId} not found` });
+    }
   } catch (error) {
-    console.log("Error in fetching issue", error);
+    console.error("Error in fetching issue", error);
     res.status(500).send({ message: "Internal Server Error", error: error.message });
   }
 });
