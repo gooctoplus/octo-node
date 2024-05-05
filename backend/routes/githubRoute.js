@@ -41,8 +41,8 @@ async function handleCommitCommentWebhook(payload,res) {
             working_branch: ref,
         }
         console.log(`Commit comment contains your mention: ${JSON.stringify(responseBody)}`);
-        const pythonProcess = spawn('/Users/priyal/projects/octoplus/env/bin/python', ['/Users/priyal/projects/octoplus/octo/main.py',`--working_branch=${ref}`, `--diff_hunk=${diff_hunk}`, `--is-git-flow=True`, `--comment-text=${body}`,  `--comment-file=${path}`,`--pineconeAPIKey=${pineconeAPIKey}`, `--openAIKey=${openAIKey}`, `--pineconeIndex=${pineconeIndex}`, `--repoUrl=${repoUrl}`, `--repoTargetPath=${repoTargetPath}`], {
-            cwd: '/Users/priyal/projects/octoplus/octo/'
+        const pythonProcess = spawn('/app/octoplus/bin/python', ['/app/octoplus/octo/main.py',`--working_branch=${ref}`, `--diff_hunk=${diff_hunk}`, `--is-git-flow=True`, `--comment-text=${body}`,  `--comment-file=${path}`,`--pineconeAPIKey=${pineconeAPIKey}`, `--openAIKey=${openAIKey}`, `--pineconeIndex=${pineconeIndex}`, `--repoUrl=${repoUrl}`, `--repoTargetPath=${repoTargetPath}`], {
+            cwd: '/app/octoplus/octo/'
         });
         pythonProcess.stdout.on('data', (data) => {
             console.log(`stdout: ${data}`);
