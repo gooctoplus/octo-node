@@ -19,7 +19,4 @@ const issueSchema = new mongoose.Schema({
 
 const issueModel = mongoose.model("Issue", issueSchema);
 
-// Adding console log to track model loading
-console.log("Issue model loaded successfully.");
-
 export default issueModel;
