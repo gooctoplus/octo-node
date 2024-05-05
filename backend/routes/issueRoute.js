@@ -20,7 +20,6 @@ router.get("/", async (req, res) => {
   try {
     const totalIssues = await Issue.countDocuments();
     const issues = await Issue.find({}).limit(limit).skip(offset);
-    console.log("Fetched issues with pagination", issues);
 
     const totalPages = Math.ceil(totalIssues / limit);
     const currentPage = Math.floor(offset / limit) + 1;
@@ -43,12 +42,11 @@ router.get("/", async (req, res) => {
   }
 });
 
-// fetch issue by issue id from database
+// Fetch issue by issue id from database
 router.get("/:issueId", async (req, res) => {
   try {
     const { issueId } = req.params;
     const issue = await Issue.findOne({ issueId });
-    console.log("Fetched Issue", issue);
     if (issue) {
       res.status(200).send(issue);
     } else {
