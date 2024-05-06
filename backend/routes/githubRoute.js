@@ -1,35 +1,29 @@
 import express from 'express';
 import Project from '../models/projectModel';
 import { spawn } from 'child_process';
-import { getToken, isAuth } from '../util';
 import Org from '../models/orgModel';
 
 const router = express.Router();
 async function handleCommitCommentWebhook(payload,res) {
     
-    let repoName = payload?.repository?.name
+    let repoName = payload?.repository?.name;
     const projects = await Project.findOne({ 'repos.key': repoName });
-    if(projects) { 
-      const {orgId} = projects
+    if (projects) { 
+      const {orgId} = projects;
       const org = await Org.findOne({orgId});
-      const {pineconeAPIKey, openAIKey } = org
-    // //   const projects = await Project.find({orgId});
-    // //   const org = await Org.findOne({orgId});
-    //   const currentProject = projects.find(project => issue.self.includes(project.url));
+      const {pineconeAPIKey, openAIKey } = org;
       const currentRepo = projects.repos.find(repo => repo.key === repoName);
       if (!currentRepo) {
         console.log(`Repository with name ${repoName} not found in projects`);
         return res.status(404).send('Repository not found');
       }
       
-      const repoUrl = currentRepo.url
-      const repoTargetPath = currentRepo.repoTargetPath
-      const pineconeIndex = currentRepo.pineconeIndex
-      console.log('repoo urllljjl',repoUrl);
+      const repoUrl = currentRepo.url;
+      const repoTargetPath = currentRepo.repoTargetPath;
+      const pineconeIndex = currentRepo.pineconeIndex;
     const {body, path, diff_hunk} = payload?.comment;
     const {name} = payload?.repository;
     const {ref} = payload?.pull_request?.head;
-    // Replace '@username' with your actual username or the pattern you want to match
     const pattern = /@useocto/i;
     
     if (pattern.test(body)) {
@@ -39,8 +33,7 @@ async function handleCommitCommentWebhook(payload,res) {
             repoName: name,
             diff_hunk: diff_hunk,
             working_branch: ref,
-        }
-        console.log(`Commit comment contains your mention: ${JSON.stringify(responseBody)}`);
+        };
         const pythonProcess = spawn('/app/octoplus/bin/python', ['/app/octoplus/octo/main.py',`--working_branch=${ref}`, `--diff_hunk=${diff_hunk}`, `--is-git-flow=True`, `--comment-text=${body}`,  `--comment-file=${path}`,`--pineconeAPIKey=${pineconeAPIKey}`, `--openAIKey=${openAIKey}`, `--pineconeIndex=${pineconeIndex}`, `--repoUrl=${repoUrl}`, `--repoTargetPath=${repoTargetPath}`], {
             cwd: '/app/octoplus/octo/'
         });
