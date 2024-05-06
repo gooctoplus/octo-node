@@ -10,7 +10,6 @@ router.post("/:orgId/webhook", async (req, res) => {
   try {
     const { issue } = req.body;
     const { orgId } = req.params;
-    console.log(issue, orgId);
 
     const org = await Org.findOne({ orgId });
     if (org) {
@@ -42,7 +41,6 @@ router.post("/:orgId/webhook", async (req, res) => {
       ) {
         // Issue creation
         const {
-          project,
           issuetype,
           priority,
           status,
@@ -55,11 +53,7 @@ router.post("/:orgId/webhook", async (req, res) => {
 
         const issueData = {
           orgId: orgId,
-          project: {
-            name: project.name,
-            projectId: project.id,
-            key: project.key,
-          },
+          project: currentProject?._id,
           issueType: issuetype.name,
           priority: priority.name,
           status: status.name,

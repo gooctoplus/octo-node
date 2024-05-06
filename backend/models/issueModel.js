@@ -4,9 +4,8 @@ const issueSchema = new mongoose.Schema({
   issueId: { type: String, required: true },
   orgId: { type: String, required: true },
   project: {
-    name: { type: String, required: true },
-    projectId: { type: String, required: true },
-    key: { type: String, required: true },
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Project"
   },
   issueType: { type: String },
   priority: { type: String },
