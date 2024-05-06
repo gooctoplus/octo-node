@@ -19,9 +19,13 @@ router.post("/:orgId/webhook", async (req, res) => {
         issue.self.includes(project.url)
       );
 
-      const repoUrl = currentProject?.repos?.[0].url;
-      const repoTargetPath = currentProject?.repos?.[0].repoTargetPath;
-      const pineconeIndex = currentProject?.repos?.[0].pineconeIndex;
+      const repoUrl = currentProject.repos[0].url;
+      const repoTargetPath = currentProject.repos[0].repoTargetPath;
+      const pineconeIndex = currentProject.repos[0].pineconeIndex;
+      const defaultBranch = currentProject.repos[0].defaultBranch;
+      const languages = currentProject.repos[0].languages;
+      const suffixes = currentProject.repos[0].suffixes;
+      const projectUrl = currentProject.url;
 
       // fetch project using currentProject
       if (
@@ -92,6 +96,10 @@ router.post("/:orgId/webhook", async (req, res) => {
             `--pineconeIndex=${pineconeIndex}`,
             `--repoUrl=${repoUrl}`,
             `--repoTargetPath=${repoTargetPath}`,
+            `--defaultBranch=${defaultBranch}`,
+            `--languages=${languages.join(",")}`,
+            `--suffixes=${suffixes.join(",")}`,
+            `--projectUrl=${projectUrl}`,
           ],
           {
             cwd: "/app/octoplus/octo/",
@@ -121,9 +129,19 @@ router.post("/:orgId/webhook", async (req, res) => {
   }
 });
 
-router.post("/comment", (req, res) => {
-  const { comment, ticketId, status, prUrl } = req.body;
-  commentOnTicket(ticketId, comment, status, prUrl);
+router.post("/comment", async (req, res) => {
+  const { comment, ticketId, status, prUrl, projectUrl } = req.body;
+  const project = await Project.findOne({ url: projectUrl });
+
+  commentOnTicket(
+    project.url,
+    project.jiraToken,
+    project.jiraEmail,
+    ticketId,
+    comment,
+    status,
+    prUrl
+  );
   res.send("Comment received successfully");
 });
 

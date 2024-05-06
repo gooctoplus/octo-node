@@ -7,13 +7,13 @@ const orgSchema = new mongoose.Schema({
     type: String, required: true, unique: true,
   },
   password: {
-    type: String, required: true, unique: true,
+    type: String, required: true,
   },
   orgId: {
     type: String, required: true, unique: true,
   },
   pineconeAPIKey: {
-    type: String, required: true, unique: true,
+    type: String, required: true,
   },
   maxTickets: {
     type: Number, required: true,
@@ -21,7 +21,7 @@ const orgSchema = new mongoose.Schema({
   openAIKey: {
     type: String, required: true,
   },
-  authToken: { type: String, required: false }
+  webhookToken: { type: String, required: true }
 });
 
 const orgModel = mongoose.model('Org', orgSchema);
