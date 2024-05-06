@@ -2,6 +2,7 @@ import express from 'express';
 import jwt from 'jsonwebtoken'; // Import jsonwebtoken for token generation
 import Org from '../models/orgModel';
 import { getToken, isAuth } from '../util';
+import bcrypt from 'bcrypt';
 
 const router = express.Router();
 
@@ -58,23 +59,25 @@ router.put('/:id', isAuth, async (req, res) => {
 router.post('/add', async (req, res) => {
   const { name, email, password, orgId, pineconeAPIKey, maxTickets, openAIKey } = req.body;
 
-  const newOrg = new Org({
-    name,
-    email,
-    orgId,
-    pineconeAPIKey,
-    maxTickets,
-    openAIKey,
-    password
-  });
-  
   try {
+    const salt = await bcrypt.genSalt(10);
+    const hanshedPassword = await bcrypt.hash(password, salt);
+    const newOrg = new Org({
+      name,
+      email,
+      orgId,
+      pineconeAPIKey,
+      maxTickets,
+      openAIKey,
+      password: hanshedPassword
+    });
+
     // Generate an authentication token for the new organization before saving
     const webhookToken = jwt.sign({ _id: newOrg._id.toString() }, process.env.JWT_SECRET, { expiresIn: '24000h' });
     newOrg.webhookToken = webhookToken; // Saving token in the newOrg instance
 
     const createdOrg = await newOrg.save();
-    console.log(`New organization added with ID: ${createdOrg._id} and webhookToken generated.`);
+    console.log(`New organization added with ID: ${createdOrg._id} and webhookToken generated.`, createdOrg);
     res.status(201).send({
       _id: createdOrg._id,
       name: createdOrg.name,
