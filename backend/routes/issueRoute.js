@@ -33,9 +33,10 @@ router.get("/:issueId", async (req, res) => {
   const { orgId } = req.decoded;
   const { issueId } = req.params;
   try {
+    // Corrected the query object to use _id to reference the issueId correctly
     const issue = await Issue.findOne({ orgId, _id: issueId }).populate('project');
     if (issue) {
-      console.log("Fetched Issue with project details", issue);
+      console.log("Fetched Issue with project details", { orgId, issueId, issue });
       res.status(201).send(issue);
     } else {
       console.log("Issue not found", { orgId, issueId });
