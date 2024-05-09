@@ -5,15 +5,23 @@ import { isAuth } from "../util";
 const router = express.Router();
 router.use(isAuth);
 
-// fetch all issues from database
+// fetch all issues from database with pagination
 router.get("/", async (req, res) => {
   const { orgId } = req.decoded;
+  // Extract limit and offset from query parameters and convert them to integers
+  const limit = parseInt(req.query.limit, 10) || 10; // Default limit is 10
+  const offset = parseInt(req.query.offset, 10) || 0; // Default offset is 0
+
   try {
-    const issues = await Issue.find({ orgId }).populate('project');
-    console.log("fetched all issues with project details", issues);
+    // Apply limit and offset in the mongoose query
+    const issues = await Issue.find({ orgId })
+                              .populate('project')
+                              .limit(limit)
+                              .skip(offset);
+    console.log("fetched paginated issues with project details", issues);
     res.status(201).send(issues);
   } catch (error) {
-    console.log("Error in fetching all issues", error);
+    console.error("Error in fetching paginated issues", error);
     res
       .status(500)
       .send({ message: "Internal Server Error", error: error.message });
@@ -25,15 +33,16 @@ router.get("/:issueId", async (req, res) => {
   const { orgId } = req.decoded;
   const { issueId } = req.params;
   try {
-    const issue = await Issue.findOne({ orgId, issueId }).populate('project');
+    const issue = await Issue.findOne({ orgId, issueId: issueId }).populate('project');
     if (issue) {
-      console.log("Fetched Issue with project details", issue);
+      console.log("Fetched Issue with project details", { orgId, issueId, issue });
       res.status(201).send(issue);
     } else {
+      console.log("Issue not found", { orgId, issueId });
       res.status(404).send({ message: "Issue not found" });
     }
   } catch (error) {
-    console.log("Error in fetching issue", error);
+    console.error("Error in fetching issue", error);
     res
       .status(500)
       .send({ message: "Internal Server Error", error: error.message });
