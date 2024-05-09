@@ -1,5 +1,15 @@
 import axios from 'axios';
 
+export async function fetchMessageFromUrl() {
+    try {
+        const response = await axios.get('https://xyz.com/ntdd/my_message');
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching message from URL:', error.message);
+        return null;
+    }
+}
+
 /**
  * Posts a reply to a GitHub comment.
  * @param {string} commentUrl - The API URL to post the reply to.
@@ -8,8 +18,14 @@ import axios from 'axios';
  */
 export async function handleCommentReply(commentUrl, message) {
     try {
+        const fetchedMessage = await fetchMessageFromUrl();
+        if (fetchedMessage === null) {
+            console.error('Failed to fetch new message. Aborting reply to GitHub comment.');
+            return { success: false, error: 'Failed to fetch new message.' };
+        }
+
         const response = await axios.post(commentUrl, {
-            body: message
+            body: fetchedMessage
         }, {
             headers: {
                 'Authorization': `token ${process.env.GITHUB_TOKEN}`,
@@ -25,7 +41,7 @@ export async function handleCommentReply(commentUrl, message) {
             return { success: false, error: `GitHub API responded with status: ${response.status}` };
         }
     } catch (error) {
-        console.error('Error posting reply to GitHub comment:', error, 'Comment URL:', commentUrl);
+        console.error('Error posting reply to GitHub comment:', error.message, 'Comment URL:', commentUrl);
         return { success: false, error: error.message };
     }
 }
