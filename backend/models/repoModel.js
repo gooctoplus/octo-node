@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-const repoSchema = new mongoose.Schema({
+export const repoSchema = new mongoose.Schema({
   key: { type: String },
   description: { type: String },
   url: { type: String, required: true },
@@ -19,5 +19,4 @@ const repoSchema = new mongoose.Schema({
 
 const Repo = mongoose.model('Repo', repoSchema);
 
-export { Repo, repoSchema };
 export default Repo;

@@ -1,5 +1,6 @@
 import express from 'express';
-import Project, { Repo } from '../models/projectModel';
+import Project from '../models/projectModel';
+import Repo from '../models/repoModel';
 
 const router = express.Router();
 router.post('/add', async (req, res) => {
