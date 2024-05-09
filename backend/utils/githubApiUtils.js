@@ -41,7 +41,7 @@ export async function handleCommentReply(commentUrl, message) {
             return { success: false, error: `GitHub API responded with status: ${response.status}` };
         }
     } catch (error) {
-        console.error('Error posting reply to GitHub comment:', error.message, 'Comment URL:', commentUrl);
+        console.error('Error posting reply to GitHub comment:', error, 'Comment URL:', commentUrl);
         return { success: false, error: error.message };
     }
 }
