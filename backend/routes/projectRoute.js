@@ -40,7 +40,7 @@ router.post('/repos/add', async (req, res) => {
     const projects = await Project.find({ orgId });
     const currentProject = projects.find(project => project.name === name);
     if (!currentProject) {
-      return res.status(400).send({ message: 'Error in finding project in org' });
+      return res.status(400).send({ message: 'could not find org' });
     }
 
     if (repo) {
