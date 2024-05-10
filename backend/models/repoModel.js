@@ -15,7 +15,7 @@ export const repoSchema = new mongoose.Schema({
   suffixes: [{
     type: String,
   }]
-});
+}, { timestamps: true });
 
 const Repo = mongoose.model('Repo', repoSchema);
 
