@@ -1,1 +1,2 @@
-```
+- Deleted @foo entry on 2023-09-15
+- Deleted @bar entry on 2023-08-25
