@@ -7,6 +7,7 @@ import orgRoute from './routes/orgRoute';
 import jiraRoute from './routes/jiraRoute.js';
 import projectRoute from './routes/projectRoute.js';
 import githubRoute from './routes/githubRoute.js';
+import cors from 'cors'; // Import the CORS package
 
 const mongodbUrl = config.MONGODB_URL;
 mongoose
@@ -15,10 +16,14 @@ mongoose
     useUnifiedTopology: true,
     useCreateIndex: true,
   })
-  .catch((error) => console.log(error.reason));
+  .catch((error) => {
+    console.error('Database connection error:', error.message, error.stack); // Log the error with stack trace
+  });
 
 const app = express();
 app.use(bodyParser.json());
+app.use(cors()); // Enable CORS for all domains
+
 app.use('/api/org', orgRoute);
 app.use('/api/project', projectRoute);
 app.use('/api/jira', jiraRoute);
