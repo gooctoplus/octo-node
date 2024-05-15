@@ -18,7 +18,7 @@ async function replyToGithubComment(commentUrl, message) {
       }
     });
 
-    if (response.status === 201) {
+    if (response.status === 200) {
       console.log('Reply successfully posted to GitHub comment');
       return { success: true };
     } else {
