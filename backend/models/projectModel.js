@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { repoSchema } from './repoModel'; // Importing repoSchema
 
 const projectSchema = new mongoose.Schema({
   name: { type: String, required: true },
@@ -14,24 +15,8 @@ const projectSchema = new mongoose.Schema({
   jiraEmail: {
     type: String, required: true,
   },
-  repos: [{
-    key: { type: String },
-    description: { type: String },
-    url: { type: String, required: true },
-    pineconeIndex: {
-        type: String, required: true,
-    },
-    repoTargetPath: { type: String, required: true },
-    defaultBranch: {type: String, required: true},
-    languages: [{
-      type: String,
-    }],
-    suffixes: [{
-      type: String,
-    }]
-  }],
+  repos: [repoSchema],
 });
 
 const projectModel = mongoose.model('Project', projectSchema);
-
 export default projectModel;

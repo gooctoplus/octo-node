@@ -2,6 +2,7 @@ import express from 'express';
 import path from 'path';
 import mongoose from 'mongoose';
 import bodyParser from 'body-parser';
+import cors from 'cors';
 import config from './config';
 import orgRoute from './routes/orgRoute';
 import jiraRoute from './routes/jiraRoute.js';
@@ -21,6 +22,7 @@ mongoose
 
 const app = express();
 app.use(bodyParser.json());
+app.use(cors());
 app.use('/api/org', orgRoute);
 app.use('/api/auth', authRoute);
 app.use('/api/project', projectRoute);
