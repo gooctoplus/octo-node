@@ -67,7 +67,7 @@ router.post('/:orgId/webhook', async (req, res) => {
 
         pythonProcess.on('close', (code) => {
           console.log(`child process exited with code ${code}`);
-          res.send('Python script executed');
+        //   res.send('Python script executed');
         });
 
       }
