@@ -6,6 +6,7 @@ import config from './config';
 import orgRoute from './routes/orgRoute';
 import jiraRoute from './routes/jiraRoute.js';
 import projectRoute from './routes/projectRoute.js';
+import issueRoute from './routes/issueRoute.js';
 import githubRoute from './routes/githubRoute.js';
 
 const mongodbUrl = config.MONGODB_URL;
@@ -22,6 +23,7 @@ app.use(bodyParser.json());
 app.use('/api/org', orgRoute);
 app.use('/api/project', projectRoute);
 app.use('/api/jira', jiraRoute);
+app.use('/api/issue', issueRoute);
 app.use('/api/github', githubRoute);
 app.use(express.static(path.join(__dirname, '/../frontend/build')));
 app.get('*', (req, res) => {
