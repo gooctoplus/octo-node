@@ -8,6 +8,12 @@ const projectSchema = new mongoose.Schema({
   orgId: {
     type: String, required: true,
   },
+  jiraToken: {
+    type: String, required: true,
+  },
+  jiraEmail: {
+    type: String, required: true,
+  },
   repos: [{
     key: { type: String },
     description: { type: String },
@@ -16,7 +22,13 @@ const projectSchema = new mongoose.Schema({
         type: String, required: true,
     },
     repoTargetPath: { type: String, required: true },
-    defaultBranch: {type: String, required: true}
+    defaultBranch: {type: String, required: true},
+    languages: [{
+      type: String,
+    }],
+    suffixes: [{
+      type: String,
+    }]
   }],
 });
 

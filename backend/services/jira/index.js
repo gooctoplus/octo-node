@@ -3,10 +3,11 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const JIRA_BASE_URL = process.env.JIRA_BASE_URL;
-const JIRA_AUTH = `Basic ${Buffer.from(`${process.env.BOT_USERNAME}:${process.env.API_TOKEN}`).toString('base64')}`;
+export async function commentOnTicket(projectUrl, jiraToken, jiraEmail, ticketId, comment, status, prUrl) {
 
-export async function commentOnTicket(ticketId, comment, status, prUrl) {
+    const JIRA_BASE_URL = projectUrl;
+    const JIRA_AUTH = `Basic ${Buffer.from(`${jiraEmail}:${jiraToken}`).toString('base64')}`;
+
     const url = `${JIRA_BASE_URL}/rest/api/3/issue/${ticketId}/comment`;
 
     let data = {

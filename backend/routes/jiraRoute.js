@@ -4,6 +4,7 @@ import { spawn } from "child_process";
 import Org from "../models/orgModel";
 import Project from "../models/projectModel";
 import Issue from "../models/issueModel";
+import config from "../config";
 
 const router = express.Router();
 router.post("/:orgId/webhook", async (req, res) => {
@@ -126,10 +127,12 @@ router.post("/:orgId/webhook", async (req, res) => {
   }
 });
 
-router.post("/comment", (req, res) => {
-  const { comment, ticketId, status, prUrl } = req.body;
-  commentOnTicket(ticketId, comment, status, prUrl);
-  res.send("Comment received successfully");
+router.post('/comment', async (req, res) => {
+  const { comment, ticketId, status, prUrl, projectUrl } = req.body;
+  const project = await Project.findOne({ url: projectUrl });
+
+  commentOnTicket(project.url, project.jiraToken, project.jiraEmail, ticketId, comment, status, prUrl)
+  res.send('Comment received successfully');
 });
 
 export default router;
